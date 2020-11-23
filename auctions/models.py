@@ -4,7 +4,8 @@ from django.db import models
 
 class User(AbstractUser):
     pass
-
+    def __str__(self):
+        return f"{self.username}"
 
 class Category(models.Model):
     name = models.CharField(max_length=30)
@@ -21,8 +22,11 @@ class Listing(models.Model):
     current_price = models.FloatField(blank=True, null= True)
     listing_active = models.BooleanField(default=True) 
     created_date = models.DateTimeField(auto_now=True)
-    image = models.URLField(default="http://127.0.0.1:8000/static/auctions/default.jpg")
+    image = models.ImageField(upload_to="listing_images", default="listing_images/default.jpg")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null= True)
- 
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
+
     def __str__(self):
-        return f"{self.title}"
+        return f"Item: {self.title} owner: {self.owner} created: {self.created_date}"
+
+

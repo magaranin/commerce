@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+
+
+{% block body %}
+
+    <div class="box">
+        <div class="imgBx">
+            <a href="{% url 'listing' listing.id %}">
+                <img src="/media/{{ listing.image }}">
+            </a>
+        </div>
+        <div class="content">
+            <a href="{% url 'listing' listing.id %}">
+                <strong>{{ listing.title }}</strong><br>
+            </a>
+            <strong>Description: </strong> {{ listing.description}}<br>    
+            <strong>Starting Price: </strong> $ {{ listing.starting_price }}<br>
+            <strong>Current Bid: </strong>$ {{ listing.current_price }}<br>
+            <strong>Category: </strong> {{ listing.category }}<br>
+            <strong>Posted by: </strong> {{ listing.owner }}<br>
+            <strong>Posted on: </strong> {{ listing.created_date }} 
+        </div>
+    </div>
+
+    <a href= "{% url 'index' %}"><strong>Back to All Listings</strong></a>
+{% endblock %}    
