@@ -14,8 +14,13 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
+    select_cat=int(request.GET.get('category_id', -1))
+    if select_cat >= 1:
+        listings = Listing.objects.filter(category__id=select_cat)
+    else:
+        listings = Listing.objects.all()
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "listings": listings 
         #"title": "Active Listings"
     })
 
@@ -91,6 +96,19 @@ def create_new_listing(request):
         "form": create_new_listingForm()
     })
 
-def category(request):
-    pass
+def categories(request):
+    return render(request,"auctions/categories.html", {
+        "categories": Category.objects.all()
+    })
+
+@login_required
+def watchlist(request, listing_id):
+    if request.method == "POST": 
+        user = request.user
+        listing = Listings.objects.get(pk=listing_id)
+        if user.watchlist_items.filter(pk=listing_id).exists():
+            user.watchlist_items.remove(listing)
+        else:
+            user.watchlist_items.add(listing)
+    return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
 
