@@ -14,13 +14,22 @@
                 <strong>{{ listing.title }}</strong><br>
             </a>
             <strong>Description: </strong> {{ listing.description}}<br>    
-            <strong>Starting Price: </strong> $ {{ listing.starting_price }}<br>
-            <strong>Current Bid: </strong>$ {{ listing.current_price }}<br>
             <strong>Category: </strong> {{ listing.category }}<br>
             <strong>Posted by: </strong> {{ listing.owner }}<br>
-            <strong>Posted on: </strong> {{ listing.created_date }} 
+            <strong>Posted on: </strong> {{ listing.created_date }}<br>
+            <div class="watchlist">
+                <form action="{% url 'update_watchlist' listing.id %}" method="POST">
+                    {% csrf_token %}
+                        {% if is_watched %}
+                            <button type="submit">Remove form My Watchlist</button>
+                        {% else %}
+                            <button type="submit">Add to My Watchlist</button> 
+                        {% endif %}
+                </form>
+            </div>
+            <strong>Starting Price: </strong> $ {{ listing.starting_price }}<br>
+            <strong>Current Bid: </strong> {{ listing.current_price }}<br>
         </div>
     </div>
-
-    <a href= "{% url 'index' %}"><strong>Back to All Listings</strong></a>
+    <button type="button"><a href= "{% url 'index' %}"><strong>Back to All Listings</strong></a></button>
 {% endblock %}    

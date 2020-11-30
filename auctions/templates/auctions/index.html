@@ -24,7 +24,9 @@
                 Posted on: {{ listing.created_date }} 
             </div>
         </div>
-
+        {% empty %}
+            <h4>The are no listings under this category!</h4>
     {% endfor %}
+
 
 {% endblock %}    

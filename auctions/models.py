@@ -24,7 +24,7 @@ class Listing(models.Model):
     image = models.ImageField(upload_to="listing_images", default="listing_images/default.jpg")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null= True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
-    # watchers = models.ManyToManyField(User, blank=True, related_name="watchlist_items")
+    watchers = models.ManyToManyField(User, blank=True, related_name="watchlist_items")
     def __str__(self):
         return f"Item: {self.title} owner: {self.owner} created: {self.created_date}"
 

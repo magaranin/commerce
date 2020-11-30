@@ -77,9 +77,12 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def listing(request, listing_id):
+    user = request.user
     listing = Listing.objects.get(pk=listing_id)
+    is_watched = user.watchlist_items.filter(pk=listing_id).exists()
     return render(request, "auctions/listing.html", {
-        "listing": listing
+        "listing": listing,
+        "is_watched": is_watched
     })
 
 @login_required
@@ -102,13 +105,18 @@ def categories(request):
     })
 
 @login_required
-def watchlist(request, listing_id):
+def update_watchlist(request, listing_id):
     if request.method == "POST": 
         user = request.user
-        listing = Listings.objects.get(pk=listing_id)
+        listing = Listing.objects.get(pk=listing_id)
         if user.watchlist_items.filter(pk=listing_id).exists():
             user.watchlist_items.remove(listing)
         else:
             user.watchlist_items.add(listing)
     return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
 
+def watchlist(request):
+    user = request.user
+    return render(request, "auctions/index.html", {
+        "listings": user.watchlist_items.all()
+    })
