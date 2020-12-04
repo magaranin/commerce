@@ -21,7 +21,9 @@
                 Starting Price: $ {{ listing.starting_price }}<br>
                 Current Bid: <strong>{{ listing.current_price }}</strong><br>
                 Posted by: {{ listing.owner }}<br>
-                Posted on: {{ listing.created_date }} 
+                Posted on: {{ listing.created_date }}<br>
+                <button type="button"><a href= "{% url 'listing' listing.id %}"><strong>View Listing</strong></a></button> 
+                <button type="button"><a href= "{% url 'listing' listing.id %}"><strong>Add New Bid</strong></a></button> 
             </div>
         </div>
         {% empty %}

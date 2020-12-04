@@ -8,7 +8,7 @@
     <h3>Create New Listing</h3>
     <form action="{% url 'create_new_listing' %}" enctype="multipart/form-data" method="POST">
         {% csrf_token %}
-        {{ form }}
+        {{ form }}<br>
         <input type="submit">
     </form>
 {% endblock %}

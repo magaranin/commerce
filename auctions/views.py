@@ -7,8 +7,8 @@ from django import forms
 from django.forms import ModelForm
 
 
-from .models import User, Listing, Category
-from .forms import create_new_listingForm
+from .models import User, Listing, Category, Bid
+from .forms import Create_new_listingForm, BidForm
 from django.contrib.auth.decorators import login_required
 
 
@@ -82,13 +82,14 @@ def listing(request, listing_id):
     is_watched = user.watchlist_items.filter(pk=listing_id).exists()
     return render(request, "auctions/listing.html", {
         "listing": listing,
-        "is_watched": is_watched
+        "is_watched": is_watched,
+        "form": BidForm()
     })
 
 @login_required
 def create_new_listing(request):
     if request.method == "POST":
-        form = create_new_listingForm(request.POST, request.FILES)
+        form = Create_new_listingForm(request.POST, request.FILES)
         if form.is_valid():
             new_listing = form.save(commit=False)
             new_listing.owner = request.user
@@ -96,7 +97,7 @@ def create_new_listing(request):
             return HttpResponseRedirect(reverse("listing", kwargs={'listing_id': new_listing.id}))
     else:
         return render(request, "auctions/create_new_listing.html", {
-        "form": create_new_listingForm()
+            "form": Create_new_listingForm()
     })
 
 def categories(request):
@@ -120,3 +121,50 @@ def watchlist(request):
     return render(request, "auctions/index.html", {
         "listings": user.watchlist_items.all()
     })
+
+@login_required
+def bid(request, listing_id):
+    if request.method == "POST":
+        form = BidForm(request.POST)
+        if form.is_valid():
+            price = form.cleaned_data["price"]
+            listing = Listing.objects.get(pk=listing_id)
+            current_price = listing.current_price
+            start_price = listing.starting_price
+            if price < start_price:
+                user = request.user
+                is_watched = user.watchlist_items.filter(pk=listing_id).exists()
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "is_watched": is_watched,
+                    "form": form,
+                    "message": "Bid can't be less than asking price!" 
+                    }) 
+
+            if (current_price is None and price >= start_price) or price > current_price:
+                    bid = form.save(commit=False)
+                    user = request.user
+                    bid.user = user
+                    bid.listing = listing
+                    bid = form.save()
+                    listing.current_price = price
+                    listing.save()
+                    is_watched = user.watchlist_items.filter(pk=listing_id).exists()
+                    return render(request, "auctions/listing.html", {
+                        "listing": listing,
+                        "is_watched": is_watched,
+                        "form": BidForm(),
+                        "message": "Bid successfully placed!"
+                        })
+            else:
+                user = request.user
+                is_watched = user.watchlist_items.filter(pk=listing_id).exists()
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "is_watched": is_watched,
+                    "form": form,
+                    "message": "Price can't be less or equal to the previous bid!" 
+                    })
+    else:
+        return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+    
