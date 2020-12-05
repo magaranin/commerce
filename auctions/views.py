@@ -16,12 +16,11 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     select_cat=int(request.GET.get('category_id', -1))
     if select_cat >= 1:
-        listings = Listing.objects.filter(category__id=select_cat)
+        listings = Listing.objects.filter(category__id=select_cat).filter(listing_active=True)
     else:
-        listings = Listing.objects.all()
+        listings = Listing.objects.filter(listing_active=True)
     return render(request, "auctions/index.html", {
         "listings": listings 
-        #"title": "Active Listings"
     })
 
 
@@ -80,9 +79,11 @@ def listing(request, listing_id):
     user = request.user
     listing = Listing.objects.get(pk=listing_id)
     is_watched = user.watchlist_items.filter(pk=listing_id).exists()
+    can_close = listing.listing_active == True and request.user == listing.owner
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "is_watched": is_watched,
+        "can_close": can_close,
         "form": BidForm()
     })
 
@@ -140,7 +141,6 @@ def bid(request, listing_id):
                     "form": form,
                     "message": "Bid can't be less than asking price!" 
                     }) 
-
             if (current_price is None and price >= start_price) or price > current_price:
                     bid = form.save(commit=False)
                     user = request.user
@@ -168,3 +168,31 @@ def bid(request, listing_id):
     else:
         return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
     
+
+@login_required
+def close_listing(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(pk=listing_id) 
+        if  listing.listing_active == True and request.user == listing.owner:
+            if listing.current_price is None:
+                listing.listing_active = False
+                listing.save() 
+                return render(request, "auctions/listing.html", {
+                    "listing": listing, 
+                    })
+            else:    
+                listing.buyer = Bid.objects.filter(listing=listing).last().user            
+                listing.listing_active = False
+                listing.save()           
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    })
+        else:
+            return render(request, "auctions/listing.html", {
+                "listing": listing,
+                })        
+    return HttpResponseRedirect(reverse("listing page", args=(listing_id,)))    
+        
+
+
+

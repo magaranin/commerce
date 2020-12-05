@@ -17,6 +17,7 @@
             <strong>Category: </strong> {{ listing.category }}<br>
             <strong>Posted by: </strong> {{ listing.owner }}<br>
             <strong>Posted on: </strong> {{ listing.created_date }}<br>
+            {% if user != listing.owner %}
             <div class="watchlist">
                 <form action="{% url 'update_watchlist' listing.id %}" method="POST">
                     {% csrf_token %}
@@ -27,16 +28,35 @@
                     {% endif %}
                 </form>
             </div>
+            {% endif %}
             <strong>Starting Price: </strong> $ {{ listing.starting_price }}<br>
             <strong>Current Bid: </strong> $ {{ listing.current_price }}<br>
-            {% if message %}
-                <div>{{ message }}</div>
+            {% if user != listing.owner %}
+                {% if message %}
+                    <div>{{ message }}</div>
+                {% endif %}
+                <form action="{% url 'bid' listing.id %}" method="POST">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input type="submit">
+                </form>
             {% endif %}
-            <form action="{% url 'bid' listing.id %}" method="POST">
-                {% csrf_token %}
-                {{ form }}
-                <input type="submit">
-            </form>
+            {% if can_close %}
+            <div>
+                <form action="{% url 'close_listing' listing.id %}" method="POST">
+                    {% csrf_token %}
+                        <button type="submit">Close your Listing</button>
+                </form>
+            </div>
+            {% endif %}
+            {% if not listing.listing_active and user == listing.buyer %}
+                <h6>You won item: {{ listing.title }} at {{ listing.current_price }}. CONGRATULATIONS!!!</strong></h6>
+            {% endif %}
+            
+            {% if not listing.listing_active and user == listing.owner %}
+                <h6><strong>Your listing was closed at {{ listing.current_price }}!</strong></h6>  
+            {% endif %}
+    
         </div>
     </div>
     <button type="button"><a href= "{% url 'index' %}"><strong>Back to All Listings</strong></a></button>
