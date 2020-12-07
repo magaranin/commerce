@@ -47,6 +47,7 @@ li {
     top: 50%;
     left: 17%;
     width: 1000px;
+    height: 550px;
     padding: 10px;
     margin: 8px;
     box-sizing: border-box;
@@ -66,8 +67,9 @@ li {
 }
 
 .box .imgBx img {
-    max-width: 100%;
+    width: 100%;
 }
+
 
 .box .content {
     padding-left: 20px;

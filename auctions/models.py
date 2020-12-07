@@ -37,3 +37,13 @@ class Bid(models.Model):
     price = models.FloatField()
     def __str__(self):
         return f"{self.user} bids an amount of {self.price} on {self.listing}"
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.CharField(max_length=2048)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"This comment was created on {self.created_date} by {self.user} : {self.content}"

@@ -1,5 +1,5 @@
 from django.forms import ModelForm, Textarea
-from .models import User, Listing, Category, Bid
+from .models import User, Listing, Category, Bid, Comment
 from django import forms
 
 class Create_new_listingForm(ModelForm):
@@ -14,3 +14,12 @@ class BidForm(ModelForm):
     class Meta:
         model = Bid 
         fields = ['price']
+
+
+class CommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': Textarea(attrs={'col-md': 2, 'col-lg': 50, 'rows' : 2})
+        }

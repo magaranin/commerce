@@ -7,8 +7,10 @@
 {% block body %}
     <h3>Create New Listing</h3>
     <form action="{% url 'create_new_listing' %}" enctype="multipart/form-data" method="POST">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit">
+        <div class = "new_list">
+            {% csrf_token %}
+            {{ form.as_table|linebreaks }}
+            <input type="submit">    
+        </div>
     </form>
 {% endblock %}

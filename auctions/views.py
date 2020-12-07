@@ -7,8 +7,8 @@ from django import forms
 from django.forms import ModelForm
 
 
-from .models import User, Listing, Category, Bid
-from .forms import Create_new_listingForm, BidForm
+from .models import User, Listing, Category, Bid, Comment
+from .forms import Create_new_listingForm, BidForm, CommentForm
 from django.contrib.auth.decorators import login_required
 
 
@@ -78,13 +78,16 @@ def register(request):
 def listing(request, listing_id):
     user = request.user
     listing = Listing.objects.get(pk=listing_id)
+    comments = Comment.objects.filter(listing=listing)
     is_watched = user.watchlist_items.filter(pk=listing_id).exists()
     can_close = listing.listing_active == True and request.user == listing.owner
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "is_watched": is_watched,
         "can_close": can_close,
-        "form": BidForm()
+        "bid_form": BidForm(),
+        "comment_form": CommentForm(),
+        "comments": comments
     })
 
 @login_required
@@ -132,14 +135,17 @@ def bid(request, listing_id):
             listing = Listing.objects.get(pk=listing_id)
             current_price = listing.current_price
             start_price = listing.starting_price
+            comments = Comment.objects.filter(listing=listing)
             if price < start_price:
                 user = request.user
                 is_watched = user.watchlist_items.filter(pk=listing_id).exists()
                 return render(request, "auctions/listing.html", {
                     "listing": listing,
                     "is_watched": is_watched,
-                    "form": form,
-                    "message": "Bid can't be less than asking price!" 
+                    "bid_form": form,
+                    "comment_form": CommentForm(),
+                    "message": "Bid can't be less than asking price!", 
+                    "comments": comments,
                     }) 
             if (current_price is None and price >= start_price) or price > current_price:
                     bid = form.save(commit=False)
@@ -153,8 +159,10 @@ def bid(request, listing_id):
                     return render(request, "auctions/listing.html", {
                         "listing": listing,
                         "is_watched": is_watched,
-                        "form": BidForm(),
-                        "message": "Bid successfully placed!"
+                        "bid_form": BidForm(),
+                        "comment_form": CommentForm(),
+                        "message": "Bid successfully placed!",
+                        "comments": comments,
                         })
             else:
                 user = request.user
@@ -162,8 +170,10 @@ def bid(request, listing_id):
                 return render(request, "auctions/listing.html", {
                     "listing": listing,
                     "is_watched": is_watched,
-                    "form": form,
-                    "message": "Price can't be less or equal to the previous bid!" 
+                    "bid_form": form,
+                    "comment_form": CommentForm(),
+                    "message": "Price can't be less or equal to the previous bid!",
+                    "comments": comments,
                     })
     else:
         return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
@@ -179,6 +189,8 @@ def close_listing(request, listing_id):
                 listing.save() 
                 return render(request, "auctions/listing.html", {
                     "listing": listing, 
+                    "bid_form": BidForm(),
+                    "comment_form": CommentForm(),
                     })
             else:    
                 listing.buyer = Bid.objects.filter(listing=listing).last().user            
@@ -186,13 +198,33 @@ def close_listing(request, listing_id):
                 listing.save()           
                 return render(request, "auctions/listing.html", {
                     "listing": listing,
+                    "bid_form": BidForm(),
+                    "comment_form": CommentForm(),
                     })
         else:
             return render(request, "auctions/listing.html", {
                 "listing": listing,
+                "bid_form": BidForm(),
+                "comment_form": CommentForm(),
                 })        
     return HttpResponseRedirect(reverse("listing page", args=(listing_id,)))    
         
 
-
+@login_required
+def comment(request, listing_id):
+    form = CommentForm(request.POST)
+    listing = Listing.objects.get(pk=listing_id)
+    comments = Comment.objects.filter(listing=listing)
+    if request.method == "POST" and form.is_valid():
+        user = request.user
+        new_comment = form.save(commit=False)
+        new_comment.user = request.user
+        new_comment.listing = listing
+        new_comment = form.save()
+    return render(request, "auctions/listing.html", {
+        "listing": listing,
+        "bid_form": BidForm(),
+        "comment_form": CommentForm(),
+        "comments": comments
+        })        
 
