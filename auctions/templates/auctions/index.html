@@ -3,10 +3,15 @@
 {% block title%}{{ title }}{% endblock %}
 
 {% block body %}
-    <div class= "act_list">
-        <h2>Active Listings</h2>
-    </div>
-
+    {% if not watchlist_page %}
+        <div class= "act_list">
+            <h2>Active Listings</h2>
+        </div>
+    {% else %} 
+        <div class= "act_list">
+            <h2>My Watchlist</h2>
+        </div>
+    {% endif %}
     {% for listing in listings %}
 
         <div class="box">
@@ -16,15 +21,31 @@
                 </a>
             </div>
             <div class="content">
-                <a href="{% url 'listing' listing.id %}">
-                    <strong>{{ listing.title }}</strong><br>
-                </a>    
-                Starting Price: $ {{ listing.starting_price }}<br>
-                Current Bid: <strong>{{ listing.current_price }}</strong><br>
-                Posted by: {{ listing.owner }}<br>
-                Posted on: {{ listing.created_date }}<br>
-                <button type="button"><a href= "{% url 'listing' listing.id %}"><strong>View Listing</strong></a></button> 
-                <button type="button"><a href= "{% url 'listing' listing.id %}"><strong>Add New Bid</strong></a></button> 
+                <div>
+                    <div>
+                        <a href="{% url 'listing' listing.id %}">
+                            <strong>{{ listing.title }}</strong>
+                        </a>    
+                    </div>
+                    <div>
+                        <strong>Description: </strong>{{ listing.description|truncatechars:45 }}
+                    </div>
+                    <div>
+                        <span class="curBid">
+                            {% if listing.current_price is not None %}
+                                ${{ listing.current_price }}
+                            {%else%}
+                                ${{ listing.starting_price }}
+                            {%endif%}
+                        </span>
+                    </div>
+                    <div>
+                        <strong>Posted by: </strong>{{ listing.owner }}
+                    </div>
+                    <div>
+                        <strong></strong>{{ listing.created_date }}
+                    </div>
+                </div>
             </div>
         </div>
         {% empty %}

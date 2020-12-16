@@ -30,10 +30,6 @@ body {
     margin-right: 10px;
 }
 
-li {
-    position: relative;   
-}
-
 .act_list {
     position: relative;
     background-color: rgb(0, 247, 255);
@@ -45,10 +41,9 @@ li {
 .box {
     position: relative;
     top: 50%;
-    left: 17%;
+    left: 22%;
     width: 1000px;
-    height: 550px;
-    padding: 10px;
+    height: 280px;
     margin: 8px;
     box-sizing: border-box;
     background: #fff;
@@ -57,21 +52,66 @@ li {
     display: flex;
 }
 
+.box.listingDetails {
+    height: 480px;
+}
+
 .box:hover {
     box-shadow: 0 5px 10px rgba(0,0,0,0.5);
 }
 
-.box .imgBx {
-    width: 450px;
-    flex: 0 0 450px;
+.box .imgBx,
+.box .content {
+    box-sizing: border-box;
+    width: 50%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
 }
 
+.box .imgBx {
+    justify-content: center;
+}
+
+
 .box .imgBx img {
-    width: 100%;
+    box-sizing: border-box;
+    max-height: 230px;
+    margin: auto;
 }
 
 
 .box .content {
-    padding-left: 20px;
-    padding-top: 20px;
+
+    max-height: 500px;
+    height: auto;
+    box-sizing: border-box;
 }
+
+.curBid {
+    font-size: 20px;
+    font-weight: bold;
+    color: red;
+}
+
+.comment {
+    background-color: white;
+}
+
+.comment:hover {
+    box-shadow: 0 5px 10px rgba(15, 2, 194, 0.5);
+}
+
+.categories a {
+    color: black;
+}
+
+hr {
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: inset;
+    border-width: 4px;
+    }

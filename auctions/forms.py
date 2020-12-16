@@ -7,19 +7,26 @@ class Create_new_listingForm(ModelForm):
         model = Listing
         fields = ['title', 'description', 'starting_price', 'category', 'image']
         widgets = {
-            'description': Textarea(attrs={'col-md': 8, 'col-lg': 10, 'rows' : 10})
+            'title':Textarea(attrs={'class': 'form-control', 'rows' : 1}),
+            'description': Textarea(attrs={'class': 'form-control', 'rows' : 2}),
         }
+ 
 
 class BidForm(ModelForm):
     class Meta:
         model = Bid 
         fields = ['price']
-
+        labels = {
+            'price': ''
+        }
 
 class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
         widgets = {
-            'content': Textarea(attrs={'col-md': 2, 'col-lg': 50, 'rows' : 2})
+            'content': Textarea(attrs={'class': 'form-control', 'rows' : 2}
+        )}
+        labels = {
+            'content': 'Comment'
         }

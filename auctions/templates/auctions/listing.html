@@ -3,84 +3,105 @@
 
 {% block body %}
 
-    <div class="box">
+    <div class="box listingDetails">
         <div class="imgBx">
             <a href="{% url 'listing' listing.id %}">
                 <img src="/media/{{ listing.image }}">
             </a>
         </div>
         <div class="content">
-            <a href="{% url 'listing' listing.id %}">
-                <strong>{{ listing.title }}</strong><br>
-            </a>
-            <strong>Description: </strong> {{ listing.description}}<br>    
-            <strong>Category: </strong> {{ listing.category }}<br>
-            <strong>Posted by: </strong> {{ listing.owner }}<br>
-            <strong>Posted on: </strong> {{ listing.created_date }}<br>
-            {% if user != listing.owner %}
-            <div class="watchlist">
-                <form action="{% url 'update_watchlist' listing.id %}" method="POST">
-                    {% csrf_token %}
-                    {% if is_watched %}
-                        <button type="submit">Remove from My Watchlist</button>
-                    {% else %}
-                        <button type="submit">Add to My Watchlist</button> 
-                    {% endif %}
-                </form>
-            </div>
-            {% endif %}
-            <strong>Starting Price: </strong> $ {{ listing.starting_price }}<br>
-            <strong>Current Bid: </strong> $ {{ listing.current_price }}<br>
-            {% if user != listing.owner %}
-            <div class="message">
-                {% if message %}
-                    {{ message }}
-                {% endif %}
-            </div>
-                <form action="{% url 'bid' listing.id %}" method="POST">
-                    {% csrf_token %}
-                    {{ bid_form }}
-                    <input type="submit">
-                </form>
-            {% endif %}
-            {% if can_close %}
             <div>
-                <form action="{% url 'close_listing' listing.id %}" method="POST">
-                    {% csrf_token %}
-                        <button type="submit">Close your Listing</button>
-                </form>
-            </div>
-            {% endif %}
-            <div class="message">
-                {% if not listing.listing_active and user == listing.buyer %}
-                    <h6>You won item: {{ listing.title }} at {{ listing.current_price }}. CONGRATULATIONS!!!</strong></h6>
+                <a href="{% url 'listing' listing.id %}">
+                    <strong>{{ listing.title }}</strong><br>
+                </a>
+                <div>
+                    <strong>Description: </strong> {{ listing.description}}    
+                </div>
+                <div>
+                    <strong>Category: </strong> {{ listing.category }}
+                </div>
+                <div>
+                    <strong>Posted by: </strong> {{ listing.owner }}
+                </div>
+                <div>
+                    <strong>Posted on: </strong> {{ listing.created_date }}  
+                </div>
+                {% if user.is_authenticated and user != listing.owner %}
+                <div class="watchlist">
+                    <form action="{% url 'update_watchlist' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        {% if is_watched %}
+                            <button type="submit">Remove from My Watchlist</button>
+                        {% else %}
+                            <button type="submit">Add to My Watchlist</button> 
+                        {% endif %}
+                    </form>
+                </div>
+                {% else %}
+
                 {% endif %}
-                
-                {% if not listing.listing_active and user == listing.owner %}
-                    <h6><strong>Your listing was closed at {{ listing.current_price }}!</strong></h6>  
-                {% endif %}   
+                <div>
+                    <strong>Starting Price: </strong> ${{ listing.starting_price }}
+                </div>
+                <div>
+                    {% if listing.current_price is None %}
+                        <strong>Current Bid: </strong> {{ listing.current_price }}
+                    {% else %} 
+                        <strong>Current Bid: </strong> ${{ listing.current_price }}
+                    {% endif %}
+                </div>
+                {% if user.is_authenticated and user != listing.owner %}
+                <div class="message">
+                    {% if message %}
+                        {{ message }}
+                    {% endif %}
+                </div>
+                    <form action="{% url 'bid' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        {{ bid_form }}
+                        <button type="submit">Place bid</button>
+                    </form>
+                {% endif %}
+                {% if can_close %}
+                <div>
+                    <form action="{% url 'close_listing' listing.id %}" method="POST">
+                        {% csrf_token %}
+                            <button type="submit">Close your Listing</button>
+                    </form>
+                </div>
+                {% endif %}
+                <div class="message">
+                    {% if not listing.listing_active and user == listing.buyer %}
+                        <h6>You won item: {{ listing.title }} at {{ listing.current_price }}. CONGRATULATIONS!!!</strong></h6>
+                    {% endif %}
+                    
+                    {% if not listing.listing_active and user == listing.owner %}
+                        <h6><strong>Your listing was closed at {{ listing.current_price }}!</strong></h6>  
+                    {% endif %}   
+                </div>
             </div>
         </div>
-    </div>
-    <button type="button"><a href= "{% url 'index' %}"><strong>Back to All Listings</strong></a></button><br>
-    <div>   
+    </div>    
+    <br>
+    <br>
+    {% if user.is_authenticated %}
+    <div class="comment_form">   
         <form action="{% url 'comment' listing.id %}" method="POST">
             {% csrf_token %}
-            {{ comment_form }}
+            {{ comment_form }}<br>
                 <button type="submit">Add your Comment</button><br>
-                <br>
         </form>
     </div>
-
-
-    {% for comment in comments %}
-        <div class="comment">  
-            <strong>{{ comment.user }}</strong> at: {{ comment.created_date }}
-            {{ comment.content }}
-        </div>
-            {% empty %}
-                <h6>The are no comments for this listing!</h6><br>
+    {% endif %}
+    <br>
+    <div class="comment">  
+    {% for comment in comments %} 
+        <strong>{{ comment.user }}</strong> at: {{ comment.created_date }}<br>
+        {{ comment.content }}<br>
+        <hr>
+        {% empty %}
+            <h6>There are no comments for this listing!</h6><br>
     {% endfor %}
-
+    </div>
 
 {% endblock %}    

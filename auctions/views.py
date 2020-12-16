@@ -75,12 +75,14 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-def listing(request, listing_id):
-    user = request.user
+def listing(request, listing_id): 
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.filter(listing=listing)
-    is_watched = user.watchlist_items.filter(pk=listing_id).exists()
-    can_close = listing.listing_active == True and request.user == listing.owner
+    can_close = False
+    is_watched = False
+    if request.user.is_authenticated:
+        can_close = listing.listing_active == True and request.user == listing.owner
+        is_watched = request.user.watchlist_items.filter(pk=listing_id).exists()
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "is_watched": is_watched,
@@ -89,6 +91,7 @@ def listing(request, listing_id):
         "comment_form": CommentForm(),
         "comments": comments
     })
+
 
 @login_required
 def create_new_listing(request):
@@ -123,7 +126,8 @@ def update_watchlist(request, listing_id):
 def watchlist(request):
     user = request.user
     return render(request, "auctions/index.html", {
-        "listings": user.watchlist_items.all()
+        "listings": user.watchlist_items.all(),
+        "watchlist_page": True
     })
 
 @login_required

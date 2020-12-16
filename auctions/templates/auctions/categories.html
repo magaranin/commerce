@@ -3,11 +3,14 @@
 
 {% block body %}
     <h2>Categories</h2>
-    <ul>
-        {% for category in categories %}
-        <li>
-            <a href="/auctions/?category_id={{ category.id }}">{{ category.name }}</a>
-        </li>
-        {% endfor %}
-    </ul>   
+    <div class="categories">
+        <ul>
+            {% for category in categories %}
+            <li>
+                <strong><a href="/auctions/?category_id={{ category.id }}">{{ category.name }}</a></strong>
+            </li>
+            {% endfor %}
+        </ul>  
+    </div>
+ 
 {% endblock %}    
